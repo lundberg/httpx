@@ -114,10 +114,12 @@ async def test_httpx_log_level_enabled_stderr_logging(server, capsys, httpx_log_
     async with httpx.AsyncClient() as client:
         await client.get(server.url)
 
+    stderr = capsys.readouterr().err
+    assert 'HTTP Request: 127.0.0.1 - "GET / HTTP/1.1" 200 OK' in stderr
     if httpx_log_level == "trace":
-        assert "httpx.dispatch.connection_pool" in capsys.readouterr().err
+        assert "httpx.dispatch.connection_pool" in stderr
     else:
-        assert "httpx.dispatch.connection_pool" not in capsys.readouterr().err
+        assert "httpx.dispatch.connection_pool" not in stderr
 
     # Reset the logger so we don't have verbose output in all unit tests
     logging.getLogger("httpx").handlers = []
